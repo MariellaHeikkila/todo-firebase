@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, _ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, ScrollView } from 'react-native';
 import { child, push, ref, remove, update, onValue } from 'firebase/database';
 import { db, TODO_REF } from './firebase/Config';
-import { TodoItem } from './components/Todoitem';
+import TodoItem from './components/TodoItem';
 
 export default function App() {
 
@@ -54,11 +54,13 @@ export default function App() {
       { cancelable: false}
     );
   }
+
+  let todosKeys = Object.keys(todos);
   
   return (
     <View style={styles.container}    
     >
-      <Text>Todolist</Text>
+      <Text>Todolist {todosKeys.length}</Text>
       <View style={{marginTop: 5}}>
         <TextInput
         style={{marginTop: 5, padding: 5, width: 200, borderColor: 'black', borderWidth: 1}}
@@ -72,17 +74,32 @@ export default function App() {
         title="Add new todo item" 
         onPress={() => addNewTodo()} />
         </View>
+        <ScrollView style={{marginTop: 15}}>
+          {todosKeys.length > 0 ? (
+            todosKeys.map(key => (
+                <TodoItem 
+                key={key}
+                id={key}
+                todoItem={todos[key]}
+                />
+              ))
+          ) 
+          : (
+            <Text>No todos</Text>
+          )}
         <View style={{marginTop: 15}}>
         <Button 
         title="Remove all todos" 
         onPress={() => createTwoButtonAlert()} />
-        </View>  
+        </View>
+        </ScrollView>  
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 100,
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
