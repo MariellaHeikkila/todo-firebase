@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
-import { Text, View, TextInput, Button, Alert, ScrollView } from 'react-native';
+import { Text, View, TextInput, Button, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { child, push, ref, remove, update, onValue, query } from 'firebase/database';
 import { db, TODO_REF, USERS_REF } from '../firebase/Config';
 import TodoItem from './TodoItem';
 import { MaterialIcons } from '@expo/vector-icons';
-import { logout } from './Auth';
+import { signOutUser } from './Auth';
 import { styles } from '../style/style';
 
 export default function Todo( { navigation, route } ) {
@@ -22,13 +21,14 @@ export default function Todo( { navigation, route } ) {
       snapshot.val()
       ? setNickname(snapshot.val().nickname)
       : setNickname('');
-    })
+    
     const todoItemsRef = ref(db, TODO_REF + snapshot.key);
     onValue(todoItemsRef, (snapshot) => {
       const data = snapshot.val() ? snapshot.val() : {};
       const todoItems = {...data};
       setTodos(todoItems);
     });
+  });
   }, []);
 
   const addNewTodo = () => {
@@ -37,16 +37,22 @@ export default function Todo( { navigation, route } ) {
         done: false,
         todoItem: newTodo
       }
-      const newTodoItemKey = push(child(ref(db), TODO_REF)).key;
+      const newTodoItemKey = push(child(ref(db), TODO_REF + userkey)).key;
       const updates = {};
-      updates[TODO_REF + newTodoItemKey] = newTodoItem;
+      updates[TODO_REF + userkey + '/' + newTodoItemKey] = newTodoItem;
       setNewTodo('');
       return update(ref(db), updates);
     }    
   }
 
   const removeTodos = () => {
-    remove(ref(db), TODO_REF);
+    const removes = {};
+    remove(ref(db), TODO_REF + userkey);
+  }
+
+  const handlePress = () => {
+    signOutUser();
+    navigation.replace('Welcome');
   }
 
   const createTwoButtonAlert = () => {
@@ -70,9 +76,16 @@ export default function Todo( { navigation, route } ) {
   let todosKeys = Object.keys(todos);
   
   return (
-    <View style={styles.container}    
-    >
+    <View style={styles.container}>
+      <View style={styles.header}>
       <Text>Todolist {todosKeys.length}</Text>
+      <TouchableOpacity 
+      style = {styles.logout}
+      onPress={handlePress}>
+        <MaterialIcons name="logout" size={24} color="black" />
+      </TouchableOpacity>
+      </View>
+      <Text>Welcome {nickname}</Text>
       <View style={{marginTop: 5}}>
         <TextInput
         style={{marginTop: 5, padding: 5, width: 200, borderColor: 'black', borderWidth: 1}}
@@ -86,12 +99,13 @@ export default function Todo( { navigation, route } ) {
         title="Add new todo item" 
         onPress={() => addNewTodo()} />
         </View>
-        <ScrollView style={{marginTop: 15}}>
+        <ScrollView style={{marginTop: 5}}>
           {todosKeys.length > 0 ? (
             todosKeys.map(key => (
                 <TodoItem 
                 key={key}
                 id={key}
+                userkey={userkey}
                 todoItem={todos[key]}
                 />
               ))

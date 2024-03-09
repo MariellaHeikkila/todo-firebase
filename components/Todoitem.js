@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { Text, View, Pressable } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import EnTypo from '@expo/vector-icons/Entypo';
 import {  ref, update, remove, child } from 'firebase/database';
 import { db, TODO_REF } from '../firebase/Config';
+import { styles } from '../style/style';
 
-export default function Todoitem({todoItem: {todoItem: title, done}, id}) {
+export default function Todoitem({todoItem: {todoItem: title, done}, id, userkey}) {
 
     const [isDone, setIsDone] = useState(done);
 
@@ -16,16 +17,16 @@ export default function Todoitem({todoItem: {todoItem: title, done}, id}) {
             done: !isDone
         }
         const updates = {};
-        updates[TODO_REF + id] = updateTodoitem;
+        updates[TODO_REF + userkey + '/' + id] = updateTodoitem;
         return update(ref(db), updates);
     }
 
     const onRemove = () => {
-        return remove(child(ref(db), TODO_REF + id));
+        return remove(child(ref(db), TODO_REF + userkey + '/' + id));
     }
 
     return(
-        <View style={styles.container}>
+        <View style={styles.row}>
             <Pressable
             onPress={onCheck}
             >
@@ -50,12 +51,4 @@ export default function Todoitem({todoItem: {todoItem: title, done}, id}) {
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  });
   

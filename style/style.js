@@ -36,5 +36,13 @@ export const styles = StyleSheet.create({
     link: {
         marginTop: 10,
         color: 'blue',
-    }
+    },
+    logout: {
+        margin: 15,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 15,
+    },
   });

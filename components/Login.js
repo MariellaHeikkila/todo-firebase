@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { auth } from '../firebase/Config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { styles } from '../style/style';
+import { signIn } from './Auth';
 
 export default function Login({ navigation }) {
 
