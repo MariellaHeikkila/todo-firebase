@@ -33,7 +33,7 @@ export const signIn = async (email, password) => {
 
 export const signOutUser = async () => {
   try {
-    await signOut();
+    await signOut(auth);
   } 
   catch (error) {
     console.log('Logout failed', error.message);
